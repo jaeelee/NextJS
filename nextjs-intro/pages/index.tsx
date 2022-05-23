@@ -1,3 +1,4 @@
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useEffect, useState } from "react";
 
 interface IMovie {
@@ -17,19 +18,22 @@ interface IMovie {
   vote_count: number;
 }
 
-export default function Home() {
-  const [movies, setMoives] = useState<IMovie[]>();
-  useEffect(() => {
-    (async () => {
-      const { results } = await (await fetch(`/api/movies`)).json();
-      console.log(results);
-      setMoives(results);
-    })();
-  }, []);
+export default function Home({
+  results,
+}: InferGetServerSidePropsType<GetServerSideProps>) {
+  // const [movies, setMoives] = useState<IMovie[]>();
+  // useEffect(() => {
+  //   (async () => {
+  //     const { results } = await (await fetch(`/api/movies`)).json();
+  //     console.log(results);
+  //     setMoives(results);
+  //   })();
+  // }, []);
   return (
     <div className="container">
-      {!movies && <h4>Loading...</h4>}
-      {movies?.map((movie) => (
+      {/* {!movies && <h4>Loading...</h4>} */}
+      {/* {movies?.map((movie) => ( */}
+      {results?.map((movie: IMovie) => (
         <div className="movie" key={movie.id}>
           <img src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`} />
           <h4>{movie.original_title}</h4>
@@ -58,4 +62,16 @@ export default function Home() {
       `}</style>
     </div>
   );
+}
+
+// getServerSiedProps : 서버(백엔드)쪽에서만 실행되는 코드
+export async function getServerSideProps() {
+  const { results } = await (
+    await fetch(`http://localhost:3000/api/movies`)
+  ).json();
+  return {
+    props: {
+      results,
+    },
+  };
 }
